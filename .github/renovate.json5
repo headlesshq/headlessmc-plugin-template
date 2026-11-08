@@ -1,0 +1,34 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: ["config:recommended"],
+  // Only the managers below are used.
+  enabledManagers: ["gradle", "gradle-wrapper", "github-actions", "git-submodules"],
+  // Commit types matter: release-please turns `fix(deps)` into a release.
+  packageRules: [
+    {
+      matchManagers: ["gradle"],
+      semanticCommitType: "fix",
+      semanticCommitScope: "deps",
+    },
+    {
+      matchManagers: ["gradle-wrapper"],
+      semanticCommitType: "build",
+      semanticCommitScope: "deps",
+    },
+    {
+      matchManagers: ["github-actions"],
+      semanticCommitType: "ci",
+      semanticCommitScope: "deps",
+    },
+    {
+      // follows the `branch` configured in .gitmodules, all submodules in one PR
+      matchManagers: ["git-submodules"],
+      semanticCommitType: "build",
+      semanticCommitScope: "deps",
+      groupName: "git submodules",
+    },
+  ],
+  "git-submodules": {
+    enabled: true,
+  },
+}
