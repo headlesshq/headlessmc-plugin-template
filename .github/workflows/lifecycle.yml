@@ -1,42 +1,62 @@
-name: Release
+name: Lifecycle
 
-# Publish a GitHub release with the tag <version>, e.g. 1.0.0, to build the plugin and attach its jar.
-# The job summary contains the entry for https://github.com/headlesshq/headlessmc-plugins.
+# Opens release PRs with release-please and, once one is merged, publishes the release.
+# The job summary of the release job contains the entry for https://github.com/headlesshq/headlessmc-plugins.
 "on":
-  release:
-    types: [published]
-
-permissions:
-  contents: write
+  push:
+    branches: [main]
 
 jobs:
-  release:
+  release-please:
     runs-on: ubuntu-latest
+    # The template repository itself must never create release PRs or releases.
+    # github.event.repository.is_template is true there and false in every repo generated from it.
+    if: ${{ !github.event.repository.is_template }}
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4.4.1
+        id: release
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  release:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
           submodules: true
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
         with:
           java-version: 25
           distribution: temurin
       - name: Build
-        env:
-          TAG: ${{ github.event.release.tag_name }}
         run: |
           chmod +x gradlew
-          ./gradlew build --stacktrace -Pversion="${TAG#v}"
+          version=$(sed -n 's/^version=//p' gradle.properties)
+          ./gradlew build --stacktrace -Pversion="$version"
       - name: Upload the plugin jar
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.event.release.tag_name }}
+          TAG: ${{ needs.release-please.outputs.tag_name }}
         run: |
           jar=$(ls build/libs/*.jar | grep -v -- '-sources.jar$' | grep -v -- '-javadoc.jar$')
           gh release upload "$TAG" "$jar" --clobber
           echo "JAR=$jar" >> "$GITHUB_ENV"
       - name: Plugin index entry
         env:
-          URL: ${{ github.server_url }}/${{ github.repository }}/releases/download/${{ github.event.release.tag_name }}
+          URL: ${{ github.server_url }}/${{ github.repository }}/releases/download/${{ needs.release-please.outputs.tag_name }}
         run: |
           python3 - "$JAR" "$URL" >> "$GITHUB_STEP_SUMMARY" <<'PY'
           import hashlib, json, os, sys, zipfile
