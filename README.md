@@ -40,3 +40,21 @@ It defines the following configuration options in your `build.gradle`
   but it is never packaged.
 * `include` dependencies are nested into the plugin jar under `META-INF/jars` (Jar-in-Jar), together with their
   transitive dependencies, except for the libraries HeadlessMc already contains.
+
+## Releasing
+
+Plugins generated from this template use [release-please](https://github.com/googleapis/release-please)
+(see `.github/workflows/lifecycle.yml`). The template repository itself never creates releases.
+
+1. Use [semantic commits](https://www.conventionalcommits.org/) such as `feat: add a command` or `fix: handle null`.
+2. release-please keeps a release PR open on `main`. Merge it to release: it bumps `version` in
+   `gradle.properties`, updates the changelog and creates the GitHub release.
+3. The workflow then builds the plugin, attaches the jar to the release and prints the entry for the
+   [plugins index](https://github.com/headlesshq/headlessmc-plugins) in the job summary.
+
+Setup in your repository: enable **Allow GitHub Actions to create and approve pull requests** under
+Settings → Actions → General, release-please needs it to open the release PR.
+
+`release-please-config.json` sets `"release-as": "1.0.0"` so that the first release is 1.0.0.
+Remove `release-as` after the first release, otherwise every release would stay at 1.0.0.
+Also set `package-name` there to your plugin's name.
