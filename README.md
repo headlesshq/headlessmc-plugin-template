@@ -26,6 +26,12 @@ Then build and run:
 When you are done with your plugin consider adding it to our 
 [official plugin repository](https://github.com/headlesshq/headlessmc-plugins).
 
+## Dependency updates
+
+This template ships a [Renovate](https://docs.renovatebot.com/) config (`.github/renovate.json5`)
+that keeps Gradle dependencies, the Gradle wrapper, GitHub Actions and git submodules up to date.
+For it to take effect, install the [Renovate GitHub app](https://github.com/apps/renovate) on your repository.
+
 ## Configuration
 
 To build plugins for HeadlessMc, we use the
