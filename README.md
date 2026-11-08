@@ -26,12 +26,6 @@ Then build and run:
 When you are done with your plugin consider adding it to our 
 [official plugin repository](https://github.com/headlesshq/headlessmc-plugins).
 
-## Dependency updates
-
-This template ships a [Renovate](https://docs.renovatebot.com/) config (`.github/renovate.json5`)
-that keeps Gradle dependencies, the Gradle wrapper, GitHub Actions and git submodules up to date.
-For it to take effect, install the [Renovate GitHub app](https://github.com/apps/renovate) on your repository.
-
 ## Configuration
 
 To build plugins for HeadlessMc, we use the
@@ -47,19 +41,19 @@ It defines the following configuration options in your `build.gradle`
 * `include` dependencies are nested into the plugin jar under `META-INF/jars` (Jar-in-Jar), together with their
   transitive dependencies, except for the libraries HeadlessMc already contains.
 
-## Releasing
+This template ships a [Renovate](https://docs.renovatebot.com/) config
+that keeps Gradle dependencies, the Gradle wrapper and GitHub Actions up to date.
+For it to take effect, install the [Renovate GitHub app](https://github.com/apps/renovate) on your repository.
+
+## Releases
 
 Plugins generated from this template use [release-please](https://github.com/googleapis/release-please)
-(see `.github/workflows/lifecycle.yml`). The template repository itself never creates releases.
 
 1. Use [semantic commits](https://www.conventionalcommits.org/) such as `feat: add a command` or `fix: handle null`.
 2. release-please keeps a release PR open on `main`. Merge it to release: it bumps `version` in
    `gradle.properties`, updates the changelog and creates the GitHub release.
 3. The workflow then builds the plugin, attaches the jar to the release and prints the entry for the
-   [plugins index](https://github.com/headlesshq/headlessmc-plugins) in the job summary.
+   [official plugin repository](https://github.com/headlesshq/headlessmc-plugins) in the job summary.
 
 Setup in your repository: enable **Allow GitHub Actions to create and approve pull requests** under
 Settings → Actions → General, release-please needs it to open the release PR.
-
-`release-please-config.json` sets `"release-as": "1.0.0"` so that the first release is 1.0.0.
-Remove `release-as` after the first release, otherwise every release would stay at 1.0.0.
