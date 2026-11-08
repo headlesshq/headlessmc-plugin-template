@@ -57,4 +57,3 @@ Settings → Actions → General, release-please needs it to open the release PR
 
 `release-please-config.json` sets `"release-as": "1.0.0"` so that the first release is 1.0.0.
 Remove `release-as` after the first release, otherwise every release would stay at 1.0.0.
-Also set `package-name` there to your plugin's name.
