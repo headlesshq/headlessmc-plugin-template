@@ -19,8 +19,8 @@
   "containerEnv": {
     "GRADLE_USER_HOME": "/home/vscode/.gradle"
   },
-  "onCreateCommand": "sudo chown \"$(id -u):$(id -g)\" \"$GRADLE_USER_HOME\"",
-  "postCreateCommand": "git submodule update --init --recursive && ./gradlew --version",
+  "onCreateCommand": "sudo chown \"$(id -u):$(id -g)\" \"$GRADLE_USER_HOME\" && git submodule update --init --recursive",
+  "postCreateCommand": "./gradlew --version",
   "customizations": {
     "vscode": {
       "extensions": [
