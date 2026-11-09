@@ -26,13 +26,22 @@ jobs:
       - name: Generate the plugin index entry
         run: ./gradlew generatePluginIndexEntry --stacktrace
       - name: Check the plugin homepage
-        if: github.repository != 'headlesshq/headlessmc-plugin-template'
+        if: github.repository != 'headlesshq/headlessmc-plugin-template' && !github.event.repository.fork
         run: |
+          name=$(sed -n "s/^rootProject.name *= *['\"]\(.*\)['\"].*/\1/p" settings.gradle)
+          version=$(sed -n 's/^version=//p' gradle.properties)
           url=$(jq -r '.downloads[0].url' build/headlessmc-plugin/index-entry.json)
-          case "$url" in
-            *headlessmc-plugin-template*)
-              echo "::warning file=build.gradle::downloadUrl $url points to the template, set headlessmcPlugin.homepage to your repository";;
-          esac
+          expected="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/$version/$name-$version.jar"
+          lc() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; }
+          if [ "$(lc "$url")" != "$(lc "$expected")" ]; then
+            case "$(lc "$url")" in
+              "$(lc "$GITHUB_SERVER_URL")"/*/*/releases/download/*)
+                echo "::error file=build.gradle::downloadUrl $url is not the jar of a release of this repository ($expected), set headlessmcPlugin.homepage to your repository"
+                exit 1;;
+              *)
+                echo "::warning file=build.gradle::downloadUrl $url is not an asset of a release of this repository, make sure the jar is hosted there";;
+            esac
+          fi
       - name: Upload plugin
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:

@@ -20,8 +20,10 @@ headlessmcPlugin {
 Set `homepage` to the URL of your repository. The download URL in the
 [plugin index](https://github.com/headlesshq/headlessmc-plugins) entry defaults to
 `<homepage>/releases/download/<version>/<jar>`, so if you keep the template's homepage, the entry points to the
-template instead of your plugin. The Build workflow warns about this, and the release fails instead of publishing
-such an entry. If your jar is hosted somewhere else, set `downloadUrl` in `headlessmcPlugin`.
+template instead of your plugin. The Build workflow fails on this, so the release PR cannot pass its checks with such
+an entry, and the release job refuses to upload it. If a release fails anyway, fix `homepage` and release again, or
+attach the jar and `index-entry.json` to the release by hand. If your jar is hosted somewhere else, set `downloadUrl`
+in `headlessmcPlugin`.
 
 Then build and run:
 ```shell
