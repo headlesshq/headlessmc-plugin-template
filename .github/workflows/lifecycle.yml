@@ -1,7 +1,7 @@
 name: Lifecycle
 
-# Opens release PRs with release-please and, once one is merged, publishes the release.
-# The job summary of the release job contains the entry for https://github.com/headlesshq/headlessmc-plugins.
+# Opens release PRs with release-please and, once one is merged, publishes the release
+# with the plugin jar and index-entry.json, the entry for https://github.com/headlesshq/headlessmc-plugins.
 "on":
   push:
     branches: [main]
@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ needs.release-please.outputs.tag_name }}
-          submodules: true
+          submodules: recursive
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
         with:
           java-version: 25
@@ -44,28 +44,24 @@ jobs:
       - name: Build
         run: |
           chmod +x gradlew
-          version=$(sed -n 's/^version=//p' gradle.properties)
-          ./gradlew build --stacktrace -Pversion="$version"
-      - name: Upload the plugin jar
+          ./gradlew build generatePluginIndexEntry --stacktrace
+      - name: Upload the plugin jar and index entry
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ needs.release-please.outputs.tag_name }}
         run: |
-          jar=$(ls build/libs/*.jar | grep -v -- '-sources.jar$' | grep -v -- '-javadoc.jar$')
-          gh release upload "$TAG" "$jar" --clobber
-          echo "JAR=$jar" >> "$GITHUB_ENV"
+          name=$(sed -n "s/^rootProject.name *= *['\"]\(.*\)['\"].*/\1/p" settings.gradle)
+          version=$(sed -n 's/^version=//p' gradle.properties)
+          gh release upload "$TAG" "build/libs/$name-$version.jar" \
+            build/headlessmc-plugin/index-entry.json --clobber
       - name: Plugin index entry
-        env:
-          URL: ${{ github.server_url }}/${{ github.repository }}/releases/download/${{ needs.release-please.outputs.tag_name }}
         run: |
-          python3 - "$JAR" "$URL" >> "$GITHUB_STEP_SUMMARY" <<'PY'
-          import hashlib, json, os, sys, zipfile
-          jar, url = sys.argv[1], sys.argv[2]
-          data = open(jar, "rb").read()
-          manifest = json.loads(zipfile.ZipFile(jar).read("META-INF/headlessmc-plugin.json"))
-          entry = {"version": manifest["version"], "headlessmc": manifest["headlessmc"], "java": manifest["java"],
-                   "url": f"{url}/{os.path.basename(jar)}", "sha256": hashlib.sha256(data).hexdigest(), "size": len(data)}
-          print("Add this to `downloads` in `plugins/%s.json` of "
-                "[headlessmc-plugins](https://github.com/headlesshq/headlessmc-plugins):\n" % manifest["id"])
-          print("```json\n" + json.dumps(entry, indent=2) + "\n```")
-          PY
+          {
+            echo 'Add this entry to `plugins` in the `index.json` of [headlessmc-plugins](https://github.com/headlesshq/headlessmc-plugins),'
+            echo 'or, if the plugin is already listed there, append its `downloads` to the existing entry:'
+            echo
+            echo '```json'
+            cat build/headlessmc-plugin/index-entry.json
+            echo
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

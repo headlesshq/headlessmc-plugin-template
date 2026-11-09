@@ -5,4 +5,4 @@
 [submodule "deps/headlessmc-gradle-plugin"]
 	path = deps/headlessmc-gradle-plugin
 	url = https://github.com/headlesshq/headlessmc-gradle-plugin.git
-	branch = feat/headlessmc-3
+	branch = main
