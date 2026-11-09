@@ -6,7 +6,6 @@
     ".": {
       "release-type": "simple",
       "package-name": "headlessmc-example-plugin",
-      "release-as": "1.0.0",
       "extra-files": ["gradle.properties"]
     }
   }
