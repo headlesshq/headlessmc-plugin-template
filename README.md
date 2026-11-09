@@ -17,6 +17,14 @@ headlessmcPlugin {
 }
 ```
 
+Set `homepage` to the URL of your repository. The download URL in the
+[plugin index](https://github.com/headlesshq/headlessmc-plugins) entry defaults to
+`<homepage>/releases/download/<version>/<jar>`, so if you keep the template's homepage, the entry points to the
+template instead of your plugin. The Build workflow fails on this, so the release PR cannot pass its checks with such
+an entry, and the release job refuses to upload it. If a release fails anyway, fix `homepage` and release again, or
+attach the jar and `index-entry.json` to the release by hand. If your jar is hosted somewhere else, set `downloadUrl`
+in `headlessmcPlugin`.
+
 Then build and run:
 ```shell
 ./gradlew build
@@ -52,8 +60,15 @@ Plugins generated from this template use [release-please](https://github.com/goo
 1. Use [semantic commits](https://www.conventionalcommits.org/) such as `feat: add a command` or `fix: handle null`.
 2. release-please keeps a release PR open on `main`. Merge it to release: it bumps `version` in
    `gradle.properties`, updates the changelog and creates the GitHub release.
-3. The workflow then builds the plugin, attaches the jar to the release and prints the entry for the
-   [official plugin repository](https://github.com/headlesshq/headlessmc-plugins) in the job summary.
+3. The workflow then builds the plugin, runs `./gradlew generatePluginIndexEntry` and attaches the plugin jar and
+   `index-entry.json` to the release. `index-entry.json` is the entry for the
+   [official plugin repository](https://github.com/headlesshq/headlessmc-plugins), with the download URL, sha256
+   and size of the jar. It is printed in the job summary, too.
+4. To publish the release in the plugin repository, open a PR there that adds `index-entry.json` to `plugins` in
+   `index.json`, or, if your plugin is already listed, appends its `downloads` to the existing entry.
+
+`./gradlew generatePluginIndexEntry` writes the same entry to `build/headlessmc-plugin/index-entry.json` locally,
+the Build workflow runs it on every push and PR, so a broken configuration fails early and not when you release.
 
 Setup in your repository: enable **Allow GitHub Actions to create and approve pull requests** under
 Settings → Actions → General, release-please needs it to open the release PR.

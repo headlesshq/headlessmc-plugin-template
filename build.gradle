@@ -20,6 +20,8 @@ headlessmcPlugin {
     description = 'An example HeadlessMc plugin, adds the hello command.'
     authors = ['You']
     license = 'MIT'
+    // the url of your repository, the download url in the plugin index entry is derived from it:
+    // <homepage>/releases/download/<version>/<jar>, set downloadUrl if your jar is hosted somewhere else
     homepage = 'https://github.com/headlesshq/headlessmc-plugin-template'
     // The HeadlessMc versions this plugin works with, [3.0.0-RC9,4) by default.
     // headlessmc = '[3.0.0-RC9,4)'
