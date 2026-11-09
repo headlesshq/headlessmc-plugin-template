@@ -55,11 +55,11 @@ jobs:
           jar="$name-$version.jar"
           entry=build/headlessmc-plugin/index-entry.json
           url=$(jq -r '.downloads[0].url' "$entry")
-          homepage=$(jq -r '.homepage' "$entry")
           expected="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/$TAG/$jar"
-          if [ "$url" != "$expected" ]; then
-            case "$url" in
-              "${homepage%/}/releases/download/"*)
+          lc() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; }
+          if [ "$(lc "$url")" != "$(lc "$expected")" ]; then
+            case "$(lc "$url")" in
+              "$(lc "$GITHUB_SERVER_URL")"/*/*/releases/download/*)
                 echo "::error file=build.gradle::downloadUrl $url is not the jar of this release ($expected), set headlessmcPlugin.homepage to your repository"
                 exit 1;;
               *)
