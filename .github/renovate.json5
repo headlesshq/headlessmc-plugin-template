@@ -8,7 +8,7 @@
   rebaseWhen: "conflicted",
   suppressNotifications: ["prIgnoreNotification"],
   // Only the managers below are used.
-  enabledManagers: ["gradle", "gradle-wrapper", "github-actions", "git-submodules"],
+  enabledManagers: ["gradle", "gradle-wrapper", "github-actions", "git-submodules", "devcontainer"],
   // Commit types matter: release-please turns `fix(deps)` into a release.
   packageRules: [
     { matchUpdateTypes: ["major"], addLabels: ["dependency/major"] },
@@ -35,6 +35,11 @@
       semanticCommitType: "build",
       semanticCommitScope: "deps",
       groupName: "git submodules",
+    },
+    {
+      matchManagers: ["devcontainer"],
+      semanticCommitType: "build",
+      semanticCommitScope: "deps",
     },
   ],
   "git-submodules": {
