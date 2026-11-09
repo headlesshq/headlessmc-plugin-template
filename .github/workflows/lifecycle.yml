@@ -52,7 +52,21 @@ jobs:
         run: |
           name=$(sed -n "s/^rootProject.name *= *['\"]\(.*\)['\"].*/\1/p" settings.gradle)
           version=$(sed -n 's/^version=//p' gradle.properties)
-          gh release upload "$TAG" "build/libs/$name-$version.jar" \
+          jar="$name-$version.jar"
+          entry=build/headlessmc-plugin/index-entry.json
+          url=$(jq -r '.downloads[0].url' "$entry")
+          homepage=$(jq -r '.homepage' "$entry")
+          expected="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/$TAG/$jar"
+          if [ "$url" != "$expected" ]; then
+            case "$url" in
+              "${homepage%/}/releases/download/"*)
+                echo "::error file=build.gradle::downloadUrl $url is not the jar of this release ($expected), set headlessmcPlugin.homepage to your repository"
+                exit 1;;
+              *)
+                echo "::warning file=build.gradle::downloadUrl $url is not an asset of this release, make sure the jar is hosted there";;
+            esac
+          fi
+          gh release upload "$TAG" "build/libs/$jar" \
             build/headlessmc-plugin/index-entry.json --clobber
       - name: Plugin index entry
         run: |

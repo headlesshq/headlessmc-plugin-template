@@ -25,6 +25,14 @@ jobs:
         run: ./gradlew build --stacktrace
       - name: Generate the plugin index entry
         run: ./gradlew generatePluginIndexEntry --stacktrace
+      - name: Check the plugin homepage
+        if: github.repository != 'headlesshq/headlessmc-plugin-template'
+        run: |
+          url=$(jq -r '.downloads[0].url' build/headlessmc-plugin/index-entry.json)
+          case "$url" in
+            *headlessmc-plugin-template*)
+              echo "::warning file=build.gradle::downloadUrl $url points to the template, set headlessmcPlugin.homepage to your repository";;
+          esac
       - name: Upload plugin
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:

@@ -20,7 +20,8 @@ headlessmcPlugin {
 Set `homepage` to the URL of your repository. The download URL in the
 [plugin index](https://github.com/headlesshq/headlessmc-plugins) entry defaults to
 `<homepage>/releases/download/<version>/<jar>`, so if you keep the template's homepage, the entry points to the
-template instead of your plugin. If your jar is hosted somewhere else, set `downloadUrl` in `headlessmcPlugin`.
+template instead of your plugin. The Build workflow warns about this, and the release fails instead of publishing
+such an entry. If your jar is hosted somewhere else, set `downloadUrl` in `headlessmcPlugin`.
 
 Then build and run:
 ```shell
