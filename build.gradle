@@ -9,11 +9,6 @@ repositories {
     mavenCentral()
 }
 
-headlessmc {
-    // compile against, build and run the HeadlessMc in deps/headlessmc, see settings.gradle
-    includedBuild = 'headlessmc'
-}
-
 headlessmcPlugin {
     id = 'example'
     name = 'Example Plugin'
