@@ -3,9 +3,6 @@ pluginManagement {
         gradlePluginPortal()
         mavenCentral()
     }
-    // The HeadlessMc Gradle plugin is not released yet, it is a git submodule:
-    // git submodule update --init
-    includeBuild('deps/headlessmc-gradle-plugin')
 }
 
 plugins {
